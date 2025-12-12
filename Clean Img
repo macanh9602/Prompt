@@ -1,0 +1,19 @@
+NHIỆM VỤ: Tạo ra một hình ảnh mới bằng cách kết hợp cấu trúc không gian của [Ảnh 1] và phong cách đồ họa của [Ảnh 2].
+
+1. KHỐI NỘI DUNG - CẤU TRÚC CỐ ĐỊNH (Tham chiếu từ Ảnh 1)
+
+Mục tiêu cốt lõi: Giữ nguyên tuyệt đối hình học của cảnh vật để phục vụ tái tạo 3D.
+
+Ràng buộc KHẮC KHE: Bắt buộc phải duy trì chính xác bố cục, góc nhìn (camera perspective), tỷ lệ thực tế, vị trí và khoảng cách giữa các vật thể như trong [Ảnh 1].
+
+Cấm: KHÔNG ĐƯỢC thêm vật thể mới, bớt vật thể cũ, di chuyển vị trí hoặc làm biến dạng hình dáng của bất kỳ cấu trúc nào (tường, sàn, thùng hàng, v.v.). Cấu trúc khung dây (wireframe) ngầm định của ảnh phải giữ nguyên.
+
+2. KHỐI PHONG CÁCH - GIAO DIỆN THAY ĐỔI (Tham chiếu từ Ảnh 2)
+
+Hành động: Phân tích và trích xuất "ngôn ngữ thiết kế" từ [Ảnh 2] và áp dụng nó để render (kết xuất) lại toàn bộ cảnh vật trong Khối Nội Dung.
+
+[MÔ TẢ STYLE CỤ THỂ - Có thể sửa đổi phần này sau này]:
+
+Áp dụng phong cách đồ họa game retro thời kỳ Playstation 2 (PS2 aesthetic). Sử dụng các mô hình low-poly (ít đa giác) với các cạnh sắc nét, hình khối đơn giản. Bề mặt vật thể phải sử dụng texture (kết cấu) độ phân giải thấp, bị vỡ hạt (pixelated textures). Bảng màu giới hạn, màu sắc trầm và đục. Ánh sáng phẳng, ít bóng đổ phức tạp.
+
+KẾT QUẢ ĐẦU RA: Một hình ảnh có cấu trúc không gian khớp hoàn toàn với [Ảnh 1] nhưng được hiển thị dưới lớp đồ họa low-poly PS2 của [Ảnh 2].
