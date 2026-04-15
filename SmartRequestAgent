@@ -1,1 +1,11 @@
-đánh giá các bản 0x , tôi định vẫn đính kèm file để bạn đưa ra review và đưa ra các task cần refactor . và dùng các bản 0x này để thực thi . bạn nghĩ thế có mấy model Ox này nếu đưa ra prompt chi tiết task và nội dung cụ thể từ task thì con nào sẽ oke nhất trong các bản Ox . dự đoán trước đi rồi tôi sẽ đưa cho bạn bản gômg prompt đầu vào và các file change để bạn review trực tiếp khả năng viết code của nó rồi đưa ra điều chỉnh cụ thể cho các lần prompt sau 
+đánh giá các bản 0x , tôi định vẫn đính kèm file để bạn đưa ra review và đưa ra các task cần refactor,
+dùng các bản 0x này để thực thi.
+bạn nghĩ các model Ox này nếu đưa ra prompt chi tiết task và nội dung cụ thể trong task thì con nào sẽ oke nhất trong các bản Ox . 
+dự đoán trước đi rồi tôi sẽ đưa cho bạn bản gômg prompt đầu vào 
+và các file change để bạn review trực tiếp khả năng viết code của nó rồi đưa ra điều chỉnh cụ thể cho các lần prompt sau.
+
+Từ tư duy tổng thế , "nhai sẵn" kiến trúc và chỉ giao task ở dạng vi mô (micro-tasks) với giới hạn rõ ràng, khắc phục điểm yếu của các model thực thi nhỏ.
+B1: dùng model xịn để review tổng thể, bóc tách thành các task nhỏ, viết prompt thật chi tiết.
+B2: giao cho model 0x thực thi (Cost-effective).
+B3: Đưa ouput từ agent về model xịn để review , cập nhật lại cho các lần prompt sau
+
