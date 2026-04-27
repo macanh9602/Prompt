@@ -1,0 +1,107 @@
+Act as một Senior Unity Architect và Technical Reviewer.
+
+Trước tiên:
+KHÔNG chỉnh code ngay.
+KHÔNG refactor ngay.
+KHÔNG đi vào implementation quá sớm.
+
+Nhiệm vụ đầu tiên của bạn là hiểu toàn bộ hệ thống xoay quanh feature flow này và trả về một bản đồ kiến trúc tổng quan.
+
+Hãy suy nghĩ như một kỹ sư giàu kinh nghiệm đang review một production project thực tế.
+
+Mục tiêu:
+
+* hiểu flow hiện tại
+* xác định các script liên quan và dependency của chúng
+* phát hiện vấn đề kiến trúc
+* phát hiện các hidden risk (serialized data, scene dependency, editor dependency, runtime dependency)
+* chỉ ra nơi complexity thực sự nằm ở đâu
+
+Tôi KHÔNG cần:
+
+* full code ngay
+* implementation chi tiết ngay
+
+Tôi cần một “bản đồ tư duy kỹ thuật” trước:
+
+* class nào là core
+* class nào nên sửa
+* class nào nên giữ nguyên
+* có cần thêm class mới không
+* responsibility nên được chuyển đi đâu
+* coupling nào đang quá cao
+* rủi ro bảo trì lâu dài nằm ở đâu
+
+Output theo format:
+
+1. Tổng quan Flow hiện tại
+
+* giải thích flow runtime/editor hiện tại
+* giải thích data đang di chuyển như thế nào
+* giải thích các điểm control chính đang nằm ở đâu
+
+2. Bản đồ các class liên quan
+
+Group theo:
+
+* Core runtime classes
+* Editor classes
+* Data classes (ScriptableObject / configs)
+* UI / interaction classes
+* Utility / helper classes
+
+Với mỗi class:
+
+* responsibility hiện tại
+* vấn đề hiện tại
+* mức độ rủi ro (low / medium / high)
+
+3. Các vấn đề kiến trúc
+
+Liệt kê:
+
+* root problems (gốc vấn đề, không phải triệu chứng)
+* duplicated responsibility
+* ownership sai
+* dependency mong manh
+* singleton abuse
+* scene coupling
+* serialization risks
+* editor/runtime coupling
+* mobile performance risks
+
+4. Bản đồ hướng refactor
+
+Chỉ ở mức high-level:
+
+* class nào nên sửa
+* class nào nên tách nhỏ
+* class mới nào nên được thêm vào
+* responsibility nào nên được di chuyển
+
+KHÔNG viết code ở bước này.
+
+5. Safe Refactor Strategy
+
+Giải thích:
+
+* cái gì tuyệt đối không được làm hỏng
+* cái gì phải được bảo vệ trước
+* cần validate gì trước khi bắt đầu sửa code
+
+Rules:
+
+* không đoán mò
+* phải inspect script thật trước
+* phải inspect reference thật trước
+* preserve gameplay behavior
+* preserve existing serialized data
+* tránh phá editor scenes hiện có
+* tránh overengineering
+* ưu tiên maintainability + mobile performance
+
+Nhiệm vụ của bạn không phải là code trước.
+
+Nhiệm vụ của bạn là hiểu trước.
+
+Hãy trả về architecture thinking, không phải implementation.
