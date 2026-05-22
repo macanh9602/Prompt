@@ -1,0 +1,276 @@
+Prompt editor for Agent :
+# Plan: Yarn Board Level Editor bằng UI Toolkit
+
+## Summary
+Xây dựng Unity Editor Window cho GD setup Yarn Board level trực quan: chọn level ở panel trái, edit/preview board ở giữa, chỉnh thuộc tính ở inspector phải, load/save dữ liệu ra JSON. Editor tập trung vào workflow nhanh, ít click, không hiển thị thông tin kỹ thuật thừa.
+
+Dữ liệu hiện tại gồm:
+- Board size, tile data, wool ball data trong `YarnBoardData`.
+- Wool ball gồm `BallId`, `ColorId`, `tileId`, `childrenTileIds`.
+- Global board setting gồm `centerPos`, `cellSpacing`, `cellSize`.
+- Màu lấy từ `ColorProfile`.
+:contentReference[oaicite:0]{index=0} :contentReference[oaicite:1]{index=1} :contentReference[oaicite:2]{index=2} :contentReference[oaicite:3]{index=3}
+
+## Review UX hiện tại
+- Requirement từ GD đang rõ về input nhưng chưa đủ workflow editor.
+- Cần tách rõ 3 nhóm thao tác:
+  1. Quản lý level.
+  2. Edit board layout.
+  3. Edit yarn ball / color / position.
+- Không nên để GD chỉnh trực tiếp raw data như array, index, bool[].
+- Cần preview trực tiếp để thấy board giống gameplay demo.
+- Cần validate sớm: size max 16x16, số Yarn Ball phải tương ứng rule của bobbins box, tile hợp lệ.
+
+## Information Architecture mới
+### 1. Level Management
+- Level list.
+- Search/filter level.
+- New / Duplicate / Delete.
+- Load / Save / Save As JSON.
+
+### 2. Board Setup
+- Board size: rows, columns. Max 16x16.
+- Board layout grid.
+- Toggle cell: active/blocked/empty.
+- Quick tools:
+  - Paint cell.
+  - Erase cell.
+  - Fill row/column.
+  - Clear board.
+
+### 3. Yarn Ball Setup
+- Add yarn ball vào cell hợp lệ.
+- Chọn color từ ColorProfile.
+- Set main tile position.
+- Set childrenTileIds nếu yarn ball chiếm nhiều vị trí.
+- Validate conflict: không được overlap, không được đặt ngoài board.
+
+### 4. Preview / Validation
+- Preview board real-time.
+- Highlight error cell.
+- Summary: active cells, yarn balls count, color usage.
+- Error panel nhỏ, chỉ hiện khi có lỗi.
+
+## Layout Structure mới
+### Trái: Navigation Panel
+- Header: `Yarn Levels`
+- Search box.
+- Level list dạng card/list item.
+- Selected state rõ.
+- Footer actions:
+  - `+ New Level`
+  - `Duplicate`
+  - `Delete`
+
+### Giữa: Main Editing Workspace
+- Toolbar trên cùng:
+  - Board Size
+  - Tool mode: Select / Paint / Erase / Yarn Ball
+  - Save button là primary action.
+- Board preview grid ở giữa.
+- Cell interaction:
+  - Click để edit.
+  - Drag để paint/erase.
+  - Hover cell hiển thị tọa độ.
+  - Selected cell có outline rõ.
+- Bottom status:
+  - Validation status.
+  - Cell count.
+  - Yarn ball count.
+
+### Phải: Inspector Panel
+- Nếu chưa chọn gì: Empty state.
+- Nếu chọn board: Board Settings.
+- Nếu chọn cell: Cell Settings.
+- Nếu chọn yarn ball: Yarn Ball Settings.
+- Inspector chỉ hiện field liên quan, không show raw internal data.
+
+## Component Hierarchy
+- `YarnBoardEditorWindow`
+  - `YarnBoardEditorWindow.Navigation.cs`
+  - `YarnBoardEditorWindow.Workspace.cs`
+  - `YarnBoardEditorWindow.Inspector.cs`
+  - `YarnBoardEditorWindow.Toolbar.cs`
+  - `YarnBoardEditorWindow.Serialization.cs`
+  - `YarnBoardEditorWindow.Validation.cs`
+  - `YarnBoardEditorWindow.Preview.cs`
+
+### UI Components
+- `LevelListView`
+- `BoardGridView`
+- `BoardCellView`
+- `YarnBallView`
+- `ColorPaletteField`
+- `ValidationPanel`
+- `InspectorSection`
+- `ToolbarButtonGroup`
+
+## UXML Structure Proposal
+```xml
+<ui:UXML>
+  <ui:VisualElement class="yarn-editor-root">
+
+    <ui:VisualElement class="panel nav-panel">
+      <ui:Label text="Yarn Levels" class="panel-title" />
+      <ui:TextField name="levelSearch" class="search-field" />
+      <ui:ListView name="levelList" class="level-list" />
+      <ui:VisualElement class="panel-footer">
+        <ui:Button name="newLevelButton" text="+ New Level" class="button primary" />
+        <ui:Button name="duplicateLevelButton" text="Duplicate" class="button secondary" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+
+    <ui:VisualElement class="workspace-panel">
+      <ui:VisualElement class="toolbar">
+        <ui:Button name="selectTool" text="Select" class="tool-button selected" />
+        <ui:Button name="paintTool" text="Paint" class="tool-button" />
+        <ui:Button name="eraseTool" text="Erase" class="tool-button" />
+        <ui:Button name="yarnTool" text="Yarn Ball" class="tool-button" />
+        <ui:Button name="saveButton" text="Save JSON" class="button primary" />
+      </ui:VisualElement>
+
+      <ui:VisualElement name="boardPreviewRoot" class="board-preview-root" />
+
+      <ui:VisualElement class="status-bar">
+        <ui:Label name="validationStatus" class="status-text" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+
+    <ui:VisualElement class="panel inspector-panel">
+      <ui:Label text="Inspector" class="panel-title" />
+      <ui:VisualElement name="inspectorContent" class="inspector-content" />
+    </ui:VisualElement>
+
+  </ui:VisualElement>
+</ui:UXML>
+USS Styling Strategy
+Dùng flex layout 3 cột:
+Left: 240px
+Center: flex-grow
+Right: 280px
+Spacing scale:
+4px: icon/text micro gap.
+8px: compact control gap.
+12px: normal padding.
+16px: section spacing.
+24px: large separation.
+Reusable class:
+.panel
+.panel-title
+.section
+.section-title
+.button
+.button.primary
+.button.secondary
+.tool-button
+.selected
+.disabled
+.error
+.empty-state
+Style theo Unity Editor:
+màu nền tối/trung tính.
+border nhẹ.
+radius thấp 3-4px.
+không gradient flashy.
+không bo tròn kiểu mobile.
+Interaction / State Recommendations
+Hover
+Cell hover: highlight nhẹ + hiện tọa độ.
+Button hover: đổi background nhẹ.
+Selected
+Level selected: background rõ + left accent bar.
+Cell selected: outline nổi bật.
+Yarn Ball selected: outline theo color.
+Disabled
+Disable Save khi data invalid.
+Disable Yarn Ball tool nếu chưa có active cell.
+Disable delete nếu chưa chọn level.
+Empty State
+Chưa chọn level: hiển thị message “Select or create a level”.
+Chưa chọn cell/yarn: inspector hiển thị hướng dẫn ngắn.
+Loading State
+Khi load JSON: show overlay nhỏ “Loading…”.
+Không block toàn editor nếu file nhỏ.
+Error State
+Board size > 16x16.
+Yarn Ball nằm ngoài board.
+Yarn Ball overlap cell.
+Tile inactive nhưng có Yarn Ball.
+ColorId vượt ColorProfile.Count.
+Key Changes
+Tạo custom Editor Window bằng UI Toolkit.
+Tách UI thành UXML + USS + partial C#.
+Không edit raw ScriptableObject trực tiếp trong Inspector mặc định.
+Thêm preview/edit grid trực tiếp.
+Thêm JSON load/save làm source file cho level.
+Thêm validation layer trước khi save.
+Dùng ColorProfile để render color palette.
+Dùng GlobalYarnBoardSetting để preview đúng spacing/cell size.
+API / Interface Changes
+New Editor Classes
+YarnBoardEditorWindow
+YarnBoardEditorWindow.Navigation
+YarnBoardEditorWindow.Workspace
+YarnBoardEditorWindow.Inspector
+YarnBoardEditorWindow.Serialization
+YarnBoardEditorWindow.Validation
+YarnBoardEditorWindow.Preview
+Suggested Data DTO
+[Serializable]
+public class YarnBoardLevelJson
+{
+    public string levelId;
+    public Vector2Int size;
+    public bool[] tileData;
+    public List<WoolBallData> yarnBalls;
+    public GlobalYarnBoardSetting boardSetting;
+}
+Suggested Editor State
+private YarnBoardLevelJson _currentLevel;
+private Vector2Int _selectedCell;
+private WoolBallData _selectedYarnBall;
+private EditorToolMode _currentTool;
+private bool _isDirty;
+private List<string> _validationErrors;
+Refactor Current Panel Responsibilities
+Navigation chỉ quản lý chọn level, không chứa edit logic.
+Workspace chỉ quản lý board interaction + preview.
+Inspector chỉ quản lý selected object property.
+Serialization chỉ load/save JSON.
+Validation là tầng riêng, được gọi sau mỗi thay đổi data.
+Preview không mutate data trực tiếp, chỉ render từ editor state.
+Test Plan
+Functional Test
+Tạo level mới.
+Set board size 1x1, 8x8, 16x16.
+Paint/erase cell.
+Add Yarn Ball.
+Đổi color.
+Save JSON.
+Load lại JSON và so sánh data.
+UX Test với GD
+GD tạo 1 board từ ảnh demo trong dưới 5 phút.
+GD sửa color / vị trí yarn ball không cần hỏi dev.
+GD nhìn được lỗi trước khi save.
+Validation Test
+Size > 16x16 bị chặn.
+Yarn Ball ngoài board bị báo lỗi.
+Yarn Ball trên inactive tile bị báo lỗi.
+Trùng tile bị báo lỗi.
+ColorId invalid fallback hoặc báo lỗi.
+Regression Test
+Data cũ vẫn load được.
+YarnBoardData hiện tại vẫn có thể convert sang JSON/editor state.
+Preview không làm thay đổi runtime prefab/factory ngoài ý muốn.
+Assumptions
+Editor chỉ phục vụ GD, không cần runtime UI.
+UI Toolkit bắt buộc dùng UXML + USS.
+Folder structure:
+Editor/C#
+Editor/USS
+Editor/UXML
+Max board size là 16x16.
+Color lấy từ ColorProfile.
+JSON là format chính để load/save level.
+Dreamteck Splines package chưa phải trọng tâm của editor board, chỉ cần giữ docs/package note để integration sau nếu board/yarn path cần spline.
+Preview trong editor ưu tiên chính xác workflow hơn là giống 100% runtime visual. làm việc trong "D:\UnityProject\WoolLoop\Assets\WoolLoop\Scripts\CoreScript\YarnBoard\Editor"
